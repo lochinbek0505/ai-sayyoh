@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import uz.falconmobile.ai_obida.R
+import uz.falconmobile.ai_obida.adapter.MyAdapter
 import uz.falconmobile.ai_obida.databinding.FragmentHomeBinding
 import uz.falconmobile.ai_obida.models.locate_model
+
 
 class HomeFragment : Fragment() {
 
@@ -33,7 +38,7 @@ class HomeFragment : Fragment() {
                 voice_turk = "abulqosim_turk.mp3",
                 name_uz = "Abulqosim madrasasi",
                 name_eng = "Abulqosim Madrasah",
-                image = "abulqosim.jpg",
+                image = R.drawable.abulqosim,
                 name_turk = "Abulqosim Medresesi",
                 name_ru = "Медресе Абулкосим",
                 text_uz = "Abulqosim madrasasi Toshkent shahrida joylashgan me'moriy yodgorlik bo'lib, madrasa, masjid va xonaqohdan iborat. Binoning qurilishi 1920-yilda boshlangan. Abul Kasim ismli shaxs tomonidan qurilganligi sababli shunday nomlangan. Tarixiy ahamiyatga ega bo'lgan bu joyda 1865-yilda Tashkentning rus generali Chernyaev tomonidan bosib olinishi natijasida tinchlik shartnomasi imzolangan. 1919-yilda bino yopilib, keyinchalik o'yinchoq fabrikasi sifatida foydalanilgan. 1980-yillarda restavratsiya qilinib, 1987-yilda qayta ochilgan.",
@@ -47,7 +52,7 @@ class HomeFragment : Fragment() {
                 voice_turk = "kokaldosh_turk.mp3",
                 voice_ru = "kokaldosh_ru.mp3",
                 id = "Ko'kaldosh",
-                image = "kokaldosh.jpg",
+                image = R.drawable.kokaldosh,
                 name_uz = "Koʻkaldosh madrasasi",
                 name_eng = "Kukeldash Madrasah",
                 name_turk = "Kukeldaş Medresesi",
@@ -63,7 +68,7 @@ class HomeFragment : Fragment() {
                 voice_turk = "baroqxon_turk.mp3",
                 voice_eng = "baroqxon_en.mp3",
                 id = "Baroqxon",
-                image = "baroqxon.jpg",
+                image = R.drawable.baroqxon,
                 name_uz = "Baroqxon madrasasi",
                 name_eng = "Barak Khan Madrasa",
                 name_turk = "Barak Han Medresesi",
@@ -76,6 +81,8 @@ class HomeFragment : Fragment() {
             locate_model(
                 voice_uz = "qaffol.mp3",
                 id = "Qaffol",
+                image = R.drawable.qaffol,
+
                 voice_turk = "qaffol_turk.mp3",
                 voice_eng = "qaffol_en.mp3",
                 voice_ru = "qaffol_ru.mp3",
@@ -110,7 +117,7 @@ Mevcut türbe, 1541–1542 yılları arasında mimar Ghulom Hüseyin tarafından
                 voice_ru = "qaldirgochbiy_ru.mp3",
                 voice_eng = "qaldirgochbiy_en.mp3",
                 voice_turk = "qaldirgochbiy_turk.mp3",
-                image = "qaldirgochbiy.jpg",
+                image = R.drawable.qaldirgochbiy,
                 id = "Qaldirgʻochbiy",
                 name_uz = "Qaldirgʻochbiy maqbarasi",
                 name_eng = "Mausoleum of Qaldirgʻochbiy",
@@ -151,7 +158,7 @@ Giriş güney tarafındaki kapıdandır. Kalın duvarlar içinde spiral bir merd
                 voice_turk = "shayxontohur_turk.mp3",
                 voice_ru = "shayxontohur_ru.mp3",
                 id = "Shayxontohur",
-                image = "shayxontohur.jpg",
+                image = R.drawable.shayxontohur,
                 name_uz = "Shayxontohur mozori",
                 name_eng = "Mausoleum of Shaykhontohur",
                 name_turk = "Şeyhantohur Türbesi",
@@ -175,7 +182,7 @@ Bu nadir Saur ağaçlarının bulunduğu yer olması, Şeyhantohur'un burada def
                 voice_eng = "shayxontohur_darvozasi_en.mp3",
                 voice_turk = "shayxontohur_darvozasi_turk.mp3",
                 id = "Shayxontohur darvozasi",
-                image = "shayxontohur_darvozasi.jpg",
+                image = R.drawable.shayxontohur_darvozasi,
                 name_uz = "Shayxontohur darvozasi",
                 name_eng = "Shaykhontohur Complex Gate",
                 name_turk = "Şeyhantohur Ziyaret Kompleksi Kapısı",
@@ -191,7 +198,7 @@ Bu nadir Saur ağaçlarının bulunduğu yer olması, Şeyhantohur'un burada def
                 voice_eng = "suzuk_ota_en.mp3",
                 voice_ru = "suzuk_ota_ru.mp3",
                 id = "Suzuk ota",
-                image = "suzuk_ota.jpg",
+                image = R.drawable.suzuk_ota,
                 name_uz = "Suzuk ota masjidi",
                 name_eng = "Suzuk Ota Mosque",
                 name_turk = "Suzuk Ata Camii",
@@ -210,7 +217,7 @@ Caminin inşası ilk olarak Emir Timur dönemine kadar uzanır. Emir Timur, 1363
 Появление мечети относится ко времени Амир Темура. Во время своего похода в 1363 году он заболел и был вынужден лечиться в Ташкенте в течение шести месяцев. По его указу в 1363–1364 годах над могилой Сузук-оты, внука Ходжи Ахмада Ясави, были построены мавзолей и соборная мечеть. В состав современного комплекса входят музей, автостоянка, магазины, библиотека, мавзолей Сузук-оты и сама мечеть. У входа вдоль дороги построены 34 двухэтажных дома для ремесленников."""
             ),
             locate_model(
-                image = "yunusxon.jpeg",
+                image = R.drawable.yunusxon,
                 voice_uz = "yunusxon.mp3",
                 voice_eng = "yunusxon_en.mp3",
                 voice_ru = "yunusxon_ru.mp3",
@@ -236,6 +243,12 @@ Türbe dikdörtgen planlıdır (21,2×22 m), taçkapılı ve kubbeli bir yapıd�
         )
 
 
+        val recyclerView: RecyclerView = binding.grid
+        recyclerView.setLayoutManager(GridLayoutManager(requireActivity(), 2)) // 2 ustun
+
+
+        val adapter = MyAdapter(list)
+        recyclerView.setAdapter(adapter)
 
 
         return root

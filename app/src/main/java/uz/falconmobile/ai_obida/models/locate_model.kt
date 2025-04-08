@@ -10,7 +10,7 @@ data class locate_model(
     val text_ru: String="",
     val text_turk: String="",
     val text_uz: String="",
-    val image: String="",
+    val image: Int=0,
     val voice_uz: String="",
     val voice_eng: String="",
     val voice_turk: String="",
