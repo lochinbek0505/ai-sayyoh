@@ -1,9 +1,9 @@
-1 Abulkasim
-2 Baroqxon
-3 Kokaldosh
-4 Qaffol
-5 Qaldrgoch
-6 Shayhontohur
-7 Shayhontohur_darvozasi
-8 Suzuk ota
-9 Yunusxon
+Abulkasim
+Baroqxon
+Kokaldosh
+Qaffol
+Qaldrgoch
+SHayhontohur
+Shayhontohur_darvozasi
+Suzuk ota
+Yunusxon

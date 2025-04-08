@@ -1,6 +1,6 @@
 package uz.falconmobile.ai_obida;
 
-import android.app.Activity;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.os.SystemClock;
 import android.util.Log;
@@ -20,102 +20,127 @@ import java.util.List;
 
 public class ImageClassifier {
 
-    private static final String TAG = "ImageClassifier";
-    private static final String MODEL_PATH = "model_unquant.tflite";
-    private static final String LABEL_PATH = "labels3.txt";
+    private static final String TAG = "TFImageClassifier";
 
-    private static final int DIM_BATCH_SIZE = 1;
-    private static final int DIM_PIXEL_SIZE = 3;
-    static final int DIM_IMG_SIZE_X = 224;
-    static final int DIM_IMG_SIZE_Y = 224;
+    private static final String MODEL_PATH = "model_min.tflite";  // Model path
+    private static final String LABEL_PATH = "labels_min.txt";    // Labels path
 
-    private Interpreter tflite;
-    private List<String> labelList;
-    private ByteBuffer imgData;
-    private float[][] labelProbArray;
+    private static final int INPUT_WIDTH = 224;  // Input image width
+    private static final int INPUT_HEIGHT = 224; // Input image height
+    private static final int PIXEL_SIZE = 3;     // Number of channels in the image (RGB)
 
-    public ImageClassifier(Activity activity) throws IOException {
-        Interpreter.Options options = new Interpreter.Options();
-        options.setNumThreads(4); // ko‘proq performance uchun
-        tflite = new Interpreter(loadModelFile(activity), options);
+    private final Interpreter tflite;  // Interpreter to run the model
+    private final List<String> labels; // List of labels
 
-        labelList = loadLabelList(activity);
-
-        imgData = ByteBuffer.allocateDirect(4 * DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE);
-        imgData.order(ByteOrder.nativeOrder());
-
-        labelProbArray = new float[1][labelList.size()];
+    // Constructor
+    public ImageClassifier(AssetManager assetManager) throws IOException {
+        tflite = new Interpreter(loadModelFile(assetManager, MODEL_PATH)); // Load model
+        labels = loadLabelList(assetManager, LABEL_PATH); // Load labels
     }
 
-    public String classifyFrame(Bitmap bitmap) {
-        if (tflite == null) return "Classifier not initialized.";
+    // Classify method that accepts a Bitmap and returns the classification result
+    public ClassificationResult classify(Bitmap bitmap) {
+        // Resize the image to the model input size
+        Bitmap resized = Bitmap.createScaledBitmap(bitmap, INPUT_WIDTH, INPUT_HEIGHT, true);
 
-        bitmap = Bitmap.createScaledBitmap(bitmap, DIM_IMG_SIZE_X, DIM_IMG_SIZE_Y, true);
-        convertBitmapToByteBuffer(bitmap);
+        // Convert the image to a ByteBuffer format
+        ByteBuffer inputBuffer = convertBitmapToByteBuffer(resized);
 
-        long startTime = SystemClock.uptimeMillis();
-        tflite.run(imgData, labelProbArray);
-        long endTime = SystemClock.uptimeMillis();
+        // Array to store the model's output
+        float[][] output = new float[1][labels.size()];
 
-        String result = getTopResult();
-        Log.d(TAG, "Inference time: " + (endTime - startTime) + "ms, Result: " + result);
-        return result;
+        // Start measuring inference time
+        long start = SystemClock.uptimeMillis();
+        tflite.run(inputBuffer, output); // Run inference
+        long end = SystemClock.uptimeMillis();
+
+        // Get the label with the maximum confidence score
+        int maxIndex = getMaxConfidenceIndex(output[0]);
+        float confidence = output[0][maxIndex];
+        String label = labels.get(maxIndex);
+
+        Log.d(TAG, "Inference Time: " + (end - start) + "ms");  // Log the inference time
+        return new ClassificationResult(label, confidence); // Return the result
     }
 
-    private String getTopResult() {
-        int maxIndex = 0;
-        float maxProb = labelProbArray[0][0];
+    // Convert a Bitmap to ByteBuffer format
+    private ByteBuffer convertBitmapToByteBuffer(Bitmap bitmap) {
+        // Calculate buffer size (224 * 224 * 3 channels * 4 bytes per channel for float)
+        ByteBuffer buffer = ByteBuffer.allocateDirect(INPUT_WIDTH * INPUT_HEIGHT * PIXEL_SIZE * 4);
+        buffer.order(ByteOrder.nativeOrder()); // Set byte order
 
-        for (int i = 1; i < labelList.size(); i++) {
-            if (labelProbArray[0][i] > maxProb) {
-                maxProb = labelProbArray[0][i];
-                maxIndex = i;
+        // Get the pixel data from the bitmap
+        int[] pixels = new int[INPUT_WIDTH * INPUT_HEIGHT];
+        bitmap.getPixels(pixels, 0, INPUT_WIDTH, 0, 0, INPUT_WIDTH, INPUT_HEIGHT);
+
+        // Normalize and write pixel values to the buffer
+        for (int pixel : pixels) {
+            float r = (((float) ((pixel >> 16) & 255)) - 127.5f) / 127.5f;
+            float g = (((float) ((pixel >> 8) & 255)) - 127.5f) / 127.5f;
+            float b = (((float) (pixel & 255)) - 127.5f) / 127.5f;
+
+            buffer.putFloat(r);  // Add Red channel
+            buffer.putFloat(g);  // Add Green channel
+            buffer.putFloat(b);  // Add Blue channel
+        }
+
+        buffer.rewind();  // Rewind the buffer to read it later
+        return buffer;  // Return the ByteBuffer
+    }
+
+    // Get the index of the label with the highest confidence score
+    private int getMaxConfidenceIndex(float[] probs) {
+        int maxIdx = 0;
+        float max = probs[0];
+        for (int i = 1; i < probs.length; i++) {
+            if (probs[i] > max) {
+                max = probs[i];
+                maxIdx = i;
             }
         }
-        return String.format("%s (%.2f)", labelList.get(maxIndex), maxProb);
+        return maxIdx;
     }
 
-    private void convertBitmapToByteBuffer(Bitmap bitmap) {
-        if (imgData == null) return;
-        imgData.rewind();
+    // Load the model file from the assets folder
+    private MappedByteBuffer loadModelFile(AssetManager assetManager, String modelPath) throws IOException {
+        try (FileInputStream fis = new FileInputStream(assetManager.openFd(modelPath).getFileDescriptor())) {
+            FileChannel channel = fis.getChannel();
+            long startOffset = assetManager.openFd(modelPath).getStartOffset();
+            long declaredLength = assetManager.openFd(modelPath).getDeclaredLength();
+            return channel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+        }
+    }
 
-        int[] intValues = new int[DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y];
-        bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        int pixelIndex = 0;
-        for (int i = 0; i < DIM_IMG_SIZE_X; ++i) {
-            for (int j = 0; j < DIM_IMG_SIZE_Y; ++j) {
-                final int val = intValues[pixelIndex++];
-                imgData.putFloat(((val >> 16) & 0xFF) / 255.0f); // R
-                imgData.putFloat(((val >> 8) & 0xFF) / 255.0f);  // G
-                imgData.putFloat((val & 0xFF) / 255.0f);         // B
+    // Load the label list from the assets folder
+    private List<String> loadLabelList(AssetManager assetManager, String labelPath) throws IOException {
+        List<String> labelList = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(assetManager.open(labelPath)))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                labelList.add(line);
             }
         }
+        return labelList;
     }
 
-    private List<String> loadLabelList(Activity activity) throws IOException {
-        List<String> labels = new ArrayList<>();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(activity.getAssets().open(LABEL_PATH)));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            labels.add(line);
-        }
-        reader.close();
-        return labels;
-    }
-
-    private MappedByteBuffer loadModelFile(Activity activity) throws IOException {
-        FileInputStream inputStream = new FileInputStream(activity.getAssets().openFd(MODEL_PATH).getFileDescriptor());
-        FileChannel fileChannel = inputStream.getChannel();
-        long startOffset = activity.getAssets().openFd(MODEL_PATH).getStartOffset();
-        long declaredLength = activity.getAssets().openFd(MODEL_PATH).getDeclaredLength();
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
-    }
-
+    // Close the TensorFlow Lite interpreter
     public void close() {
-        if (tflite != null) {
-            tflite.close();
-            tflite = null;
+        if (tflite != null) tflite.close();
+    }
+
+    // Inner class to store the classification result
+    public static class ClassificationResult {
+        public final String label;   // The label of the classification
+        public final float confidence; // The confidence score
+
+        public ClassificationResult(String label, float confidence) {
+            this.label = label;
+            this.confidence = confidence;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%s: %.2f", label, confidence);  // Format the result as a string
         }
     }
 }
