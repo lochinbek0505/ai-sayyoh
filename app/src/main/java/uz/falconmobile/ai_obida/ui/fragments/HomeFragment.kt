@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import uz.falconmobile.ai_obida.databinding.FragmentHomeBinding
 import uz.falconmobile.ai_obida.models.locate_model
 
@@ -30,6 +28,9 @@ class HomeFragment : Fragment() {
             locate_model(
                 id = "Abulqosim",
                 voice_uz = "abulqosim.mp3",
+                voice_ru = "abulqosim_ru.mp3",
+                voice_eng = "abulqosim_eng.mp3",
+                voice_turk = "abulqosim_turk.mp3",
                 name_uz = "Abulqosim madrasasi",
                 name_eng = "Abulqosim Madrasah",
                 name_turk = "Abulqosim Medresesi",
@@ -41,6 +42,9 @@ class HomeFragment : Fragment() {
             ),
             locate_model(
                 voice_uz = "kokaldosh.mp3",
+                voice_eng = "kokaldosh_en.mp3",
+                voice_turk = "kokaldosh_turk.mp3",
+                voice_ru = "kokaldosh_ru.mp3",
                 id = "Ko'kaldosh",
                 name_uz = "Koʻkaldosh madrasasi",
                 name_eng = "Kukeldash Madrasah",
@@ -53,6 +57,9 @@ class HomeFragment : Fragment() {
             ),
             locate_model(
                 voice_uz = "baroqxon.mp3",
+                voice_ru = "baroqxon_ru.mp3",
+                voice_turk = "baroqxon_turk.mp3",
+                voice_eng = "baroqxon_en.mp3",
                 id = "Baroqxon",
                 name_uz = "Baroqxon madrasasi",
                 name_eng = "Barak Khan Madrasa",
@@ -66,6 +73,9 @@ class HomeFragment : Fragment() {
             locate_model(
                 voice_uz = "qaffol.mp3",
                 id = "Qaffol",
+                voice_turk = "qaffol_turk.mp3",
+                voice_eng = "qaffol_en.mp3",
+                voice_ru = "qaffol_ru.mp3",
                 name_uz = "Qaffol Shoshiy maqbarasi",
                 name_eng = "Mausoleum of Qaffol Shoshiy",
                 name_turk = "Kaffal Şaşi Türbesi",
@@ -94,6 +104,9 @@ Mevcut türbe, 1541–1542 yılları arasında mimar Ghulom Hüseyin tarafından
             ),
             locate_model(
                 voice_uz = "qaldirgochbiy.mp3",
+                voice_ru = "qaldirgochbiy_ru.mp3",
+                voice_eng = "qaldirgochbiy_en.mp3",
+                voice_turk = "qaldirgochbiy_turk.mp3",
                 id = "Qaldirgʻochbiy",
                 name_uz = "Qaldirgʻochbiy maqbarasi",
                 name_eng = "Mausoleum of Qaldirgʻochbiy",
@@ -130,6 +143,9 @@ Giriş güney tarafındaki kapıdandır. Kalın duvarlar içinde spiral bir merd
             ),
             locate_model(
                 voice_uz = "shayxontohur.mp3",
+                voice_eng = "shayxontohur_en.mp3",
+                voice_turk = "shayxontohur_turk.mp3",
+                voice_ru = "shayxontohur_ru.mp3",
                 id = "Shayxontohur",
                 name_uz = "Shayxontohur mozori",
                 name_eng = "Mausoleum of Shaykhontohur",
@@ -150,6 +166,9 @@ Bu nadir Saur ağaçlarının bulunduğu yer olması, Şeyhantohur'un burada def
             ),
             locate_model(
                 voice_uz = "shayxontohur_darvozasi.mp3",
+                voice_ru = "shayxontohur_darvozasi_ru.mp3",
+                voice_eng = "shayxontohur_darvozasi_en.mp3",
+                voice_turk = "shayxontohur_darvozasi_turk.mp3",
                 id = "Shayxontohur darvozasi",
                 name_uz = "Shayxontohur darvozasi",
                 name_eng = "Shaykhontohur Complex Gate",
@@ -162,6 +181,9 @@ Bu nadir Saur ağaçlarının bulunduğu yer olması, Şeyhantohur'un burada def
             ),
             locate_model(
                 voice_uz = "suzuk_ota.mp3",
+                voice_turk = "suzuk_ota_turk.mp3",
+                voice_eng = "suzuk_ota_en.mp3",
+                voice_ru = "suzuk_ota_ru.mp3",
                 id = "Suzuk ota",
                 name_uz = "Suzuk ota masjidi",
                 name_eng = "Suzuk Ota Mosque",
@@ -182,6 +204,9 @@ Caminin inşası ilk olarak Emir Timur dönemine kadar uzanır. Emir Timur, 1363
             ),
             locate_model(
                 voice_uz = "yunusxon.mp3",
+                voice_eng = "yunusxon_en.mp3",
+                voice_ru = "yunusxon_ru.mp3",
+                voice_turk = "yunusxon_turk.mp3",
                 id = "Yunusxon",
                 name_uz = "Yunusxon maqbarasi",
                 name_eng = "Yunus Khan Mausoleum",
