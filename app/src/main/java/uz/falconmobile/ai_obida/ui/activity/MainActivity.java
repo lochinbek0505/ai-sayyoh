@@ -1,4 +1,4 @@
-package uz.falconmobile.ai_obida;
+package uz.falconmobile.ai_obida.ui.activity;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -22,6 +22,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import uz.falconmobile.ai_obida.service.ImageClassifier;
+import uz.falconmobile.ai_obida.R;
+import uz.falconmobile.ai_obida.service.YuvToRgbConverter;
+
 public class MainActivity extends AppCompatActivity {
 
     private PreviewView previewView;
@@ -39,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(uz.falconmobile.ai_obida.R.layout.activity_main);
 
-        previewView = findViewById(R.id.previewView);
-        imageView = findViewById(R.id.image_view);
-        textResult = findViewById(R.id.text_result);
+        previewView = findViewById(uz.falconmobile.ai_obida.R.id.previewView);
+        imageView = findViewById(uz.falconmobile.ai_obida.R.id.image_view);
+        textResult = findViewById(uz.falconmobile.ai_obida.R.id.text_result);
         btnCapture = findViewById(R.id.btn_capture);
 
         cameraExecutor = Executors.newSingleThreadExecutor();

@@ -1,4 +1,4 @@
-package uz.falconmobile.ai_obida;
+package uz.falconmobile.ai_obida.service;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
