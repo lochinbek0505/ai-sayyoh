@@ -31,7 +31,7 @@
         <activity
             android:name=".ui.activity.HeadActivity"
             android:exported="true"
-            android:label="@string/title_activity_head">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
