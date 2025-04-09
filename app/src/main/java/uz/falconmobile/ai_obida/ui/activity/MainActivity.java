@@ -1,9 +1,11 @@
 package uz.falconmobile.ai_obida.ui.activity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -14,6 +16,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutorService;
@@ -21,14 +24,18 @@ import java.util.concurrent.Executors;
 
 import uz.falconmobile.ai_obida.R;
 import uz.falconmobile.ai_obida.service.ImageClassifier;
+import uz.falconmobile.ai_obida.service.SharedPreferenceHelper;
 import uz.falconmobile.ai_obida.service.YuvToRgbConverter;
 
 public class MainActivity extends AppCompatActivity {
 
     private PreviewView previewView;
+    private MaterialButton button;
+    private String key = "";
     private ImageClassifier classifier;
     private ExecutorService cameraExecutor;
     private YuvToRgbConverter yuvToRgbConverter;
+    private boolean isDestroyed = false;
 
     private static final String TAG = "MainActivity";
 
@@ -38,9 +45,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         previewView = findViewById(R.id.previewView);
-
+        button = findViewById(R.id.btn_capture);
         cameraExecutor = Executors.newSingleThreadExecutor();
         yuvToRgbConverter = new YuvToRgbConverter(this);
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Remove classifier.close() here
+                Intent intent = new Intent(MainActivity.this, ShowActivity.class);
+                startActivity(intent);
+            }
+        });
 
         try {
             classifier = new ImageClassifier(getAssets());
@@ -81,8 +97,11 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bitmap = yuvToRgbConverter.yuvToRgb(image);
                     if (bitmap != null) {
                         ImageClassifier.ClassificationResult result = classifier.classify(bitmap);
-                        runOnUiThread(() ->
-                                Toast.makeText(MainActivity.this, result.toString(), Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                            key = result.label.toString();
+                            SharedPreferenceHelper.saveData(MainActivity.this, key);
+                            button.setText(result.label.toString());
+                        });
                     }
                     image.close();
                 });
@@ -100,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        // Close the classifier here, when it's no longer needed
+        isDestroyed = true;
         if (classifier != null) classifier.close();
         if (cameraExecutor != null) cameraExecutor.shutdown();
         super.onDestroy();

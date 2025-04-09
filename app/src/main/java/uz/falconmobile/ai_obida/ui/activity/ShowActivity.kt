@@ -1,37 +1,35 @@
-package uz.falconmobile.ai_obida.ui.fragments
+package uz.falconmobile.ai_obida.ui.activity
 
-import android.content.Intent
+import android.content.res.AssetFileDescriptor
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.AdapterView
+import android.widget.Spinner
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import uz.falconmobile.ai_obida.R
-import uz.falconmobile.ai_obida.adapter.MyAdapter
-import uz.falconmobile.ai_obida.databinding.FragmentHomeBinding
+import uz.falconmobile.ai_obida.adapter.CustomSpinnerAdapter
+import uz.falconmobile.ai_obida.databinding.ActivityShowBinding
+import uz.falconmobile.ai_obida.models.LanguageItem
 import uz.falconmobile.ai_obida.models.locate_model
 import uz.falconmobile.ai_obida.service.SharedPreferenceHelper
-import uz.falconmobile.ai_obida.ui.activity.ShowActivity
 
+class ShowActivity : AppCompatActivity() {
+    lateinit var binding: ActivityShowBinding
+    var key = ""
+    lateinit var model: locate_model
+    var lan = "uz"
 
-class HomeFragment : Fragment() {
-
-    private var _binding: FragmentHomeBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
+    private lateinit var mediaPlayer: MediaPlayer
+    private var isPlaying = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityShowBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val list = arrayListOf(
             locate_model(
                 id = "Abulqosim",
@@ -245,25 +243,125 @@ Türbe dikdörtgen planlıdır (21,2×22 m), taçkapılı ve kubbeli bir yapıd�
             ),
         )
 
+        val spinner: Spinner = binding.spinnerLanguage
+        key = SharedPreferenceHelper.getData(this)
+        model = list.find { it.id == key } ?: return // Safe null check to avoid exceptions
 
-        val recyclerView: RecyclerView = binding.grid
-        recyclerView.setLayoutManager(GridLayoutManager(requireActivity(), 2)) // 2 ustun
+        binding.image.setImageResource(model.image)
 
+        display(lan)
 
-        val adapter = MyAdapter(requireActivity(),list, object : MyAdapter.OnItemClickListener {
-            override fun onItemClick(item: locate_model) {
-                SharedPreferenceHelper.saveData(requireActivity(), item.id)
-                startActivity(Intent(requireActivity(), ShowActivity::class.java))
+        val languageList = listOf(
+            LanguageItem("O‘zbek", R.drawable.uz, "uz"),
+
+            LanguageItem("English", R.drawable.gb, "en"),
+            LanguageItem("Русский", R.drawable.ru, "ru"),
+            LanguageItem("Türk", R.drawable.tr, "tr")
+        )
+
+        val adapter = CustomSpinnerAdapter(this, languageList)
+        spinner.adapter = adapter
+
+        spinner.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                lan = languageList[position].code
+                display(lan)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Hech narsa tanlanmadi
             }
         })
-        recyclerView.setAdapter(adapter)
 
-
-        return root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    fun display(lan: String) {
+
+        if (isPlaying) {
+            mediaPlayer.pause()
+            mediaPlayer.reset()
+            binding.sound.setImageResource(R.drawable.play)
+            isPlaying = false
+        }
+
+        val voiceFile = when (lan) {
+            "uz" -> model.voice_uz
+            "en" -> model.voice_eng
+            "tr" -> model.voice_turk
+            "ru" -> model.voice_ru
+            else -> return
+        }
+
+        // Initialize MediaPlayer and play the voice file
+        setupMediaPlayer(voiceFile)
+
+        // Set text and title based on selected language
+        when (lan) {
+            "uz" -> {
+                binding.title.text = model.name_uz
+                binding.text.text = model.text_uz
+            }
+            "en" -> {
+                binding.title.text = model.name_eng
+                binding.text.text = model.text_eng
+            }
+            "tr" -> {
+                binding.title.text = model.name_turk
+                binding.text.text = model.text_turk
+            }
+            "ru" -> {
+                binding.title.text = model.name_ru
+                binding.text.text = model.text_ru
+            }
+        }
+
+        // Play/Pause button logic
+        binding.sound.setOnClickListener {
+            togglePlayPause()
+        }
     }
+
+    // Helper function to set up the MediaPlayer
+    private fun setupMediaPlayer(voiceFile: String) {
+        try {
+            val afd: AssetFileDescriptor = assets.openFd(voiceFile)
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                prepare()
+                setOnCompletionListener {
+                    this@ShowActivity.isPlaying = false
+                    binding.sound.setImageResource(R.drawable.play)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Error loading audio", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Helper function to toggle play and pause
+    private fun togglePlayPause() {
+        if (isPlaying) {
+            mediaPlayer.pause()
+            binding.sound.setImageResource(R.drawable.play)
+        } else {
+            mediaPlayer.start()
+            binding.sound.setImageResource(R.drawable.pause)
+        }
+        isPlaying = !isPlaying
+    }
+
+    // Cleanup when activity is destroyed
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
+    }
+
 }

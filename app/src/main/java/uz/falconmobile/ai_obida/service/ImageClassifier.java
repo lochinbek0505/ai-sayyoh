@@ -17,11 +17,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
-
 public class ImageClassifier {
 
     private static final String TAG = "TFImageClassifier";
-
     private static final String MODEL_PATH = "model_min.tflite";  // Model path
     private static final String LABEL_PATH = "labels_min.txt";    // Labels path
 
@@ -29,8 +27,10 @@ public class ImageClassifier {
     private static final int INPUT_HEIGHT = 224; // Input image height
     private static final int PIXEL_SIZE = 3;     // Number of channels in the image (RGB)
 
-    private final Interpreter tflite;  // Interpreter to run the model
+    private Interpreter tflite;  // Interpreter to run the model
     private final List<String> labels; // List of labels
+
+    private boolean isInterpreterClosed = false; // To track if the interpreter is closed
 
     // Constructor
     public ImageClassifier(AssetManager assetManager) throws IOException {
@@ -39,7 +39,11 @@ public class ImageClassifier {
     }
 
     // Classify method that accepts a Bitmap and returns the classification result
-    public ClassificationResult classify(Bitmap bitmap) {
+    public synchronized ClassificationResult classify(Bitmap bitmap) {
+        if (isInterpreterClosed) {
+            throw new IllegalStateException("Interpreter is closed and cannot be used for inference.");
+        }
+
         // Resize the image to the model input size
         Bitmap resized = Bitmap.createScaledBitmap(bitmap, INPUT_WIDTH, INPUT_HEIGHT, true);
 
@@ -124,8 +128,11 @@ public class ImageClassifier {
     }
 
     // Close the TensorFlow Lite interpreter
-    public void close() {
-        if (tflite != null) tflite.close();
+    public synchronized void close() {
+        if (tflite != null && !isInterpreterClosed) {
+            tflite.close();
+            isInterpreterClosed = true;
+        }
     }
 
     // Inner class to store the classification result

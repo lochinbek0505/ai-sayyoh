@@ -1,5 +1,6 @@
 package uz.falconmobile.ai_obida.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -25,7 +26,9 @@ class HeadActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_activity_head)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-
+        binding.centerIcon.setOnClickListener {
+            startActivity(Intent(this@HeadActivity, MainActivity::class.java))
+        }
         navView.setupWithNavController(navController)
     }
 }

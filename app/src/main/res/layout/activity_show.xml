@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context=".ui.activity.ShowActivity">
+
+    <!-- Toolbar / AppBar -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/control_background">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:fontFamily="sans-serif-medium"
+            android:text="Ko'koldosh madrasasi"
+            android:textColor="#ffffff"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/abulqosim" />
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:padding="2dp"
+                android:text="Abulqosim madrasasi Toshkent shahrida joylashgan me'moriy yodgorlik bo'lib, madrasa, masjid va xonaqohdan iborat. Binoning qurilishi 1920-yilda boshlangan. Abul Kasim ismli shaxs tomonidan qurilganligi sababli shunday nomlangan. Tarixiy ahamiyatga ega bo'lgan bu joyda 1865-yilda Tashkentning rus generali Chernyaev tomonidan bosib olinishi natijasida tinchlik shartnomasi imzolangan. 1919-yilda bino yopilib, keyinchalik o'yinchoq fabrikasi sifatida foydalanilgan. 1980-yillarda restavratsiya qilinib, 1987-yilda qayta ochilgan."
+                android:textSize="19sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom control section -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/voice" />
+
+        <ImageView
+            android:id="@+id/sound"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/play" />
+
+        <Spinner
+            android:id="@+id/spinner_language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:background="@android:color/transparent"
+            android:padding="8dp" />
+    </RelativeLayout>
+
+</LinearLayout>
